@@ -30,48 +30,35 @@ app.get("/", (req, res) => {
 });
 
 /* =========================
-   MANUAL SEND (OPTIONAL)
+   🧪 TEST EMAIL — 10:50 PM COLOMBIA
+   10:50 PM COL = 03:50 UTC
 ========================= */
-app.post("/scheduled-message", async (req, res) => {
-  try {
-    await sendScheduledEmail();
-    res.status(200).json({ message: "Message sent successfully!" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to send email" });
-  }
+cron.schedule("47 3 * * *", async () => {
+  console.log("🧪 TEST EMAIL SENT (10:50 PM COL)");
+  await sendEmail("🧪 Test before New Year 💌");
 });
 
 /* =========================
-   🧪 TEST CRON (EVERY MINUTE)
-   REMOVE AFTER CONFIRMATION
-========================= */
-cron.schedule("* * * * *", async () => {
-  console.log("🧪 TEST CRON running...");
-  await sendScheduledEmail();
-});
-
-/* =========================
-   🎆 NEW YEAR CRON
-   12:00 AM COLOMBIA = 05:00 UTC
+   🎆 REAL NEW YEAR EMAIL
+   12:00 AM COL = 05:00 UTC
 ========================= */
 cron.schedule("0 5 1 1 *", async () => {
-  console.log("🎆 HAPPY NEW YEAR!");
-  await sendScheduledEmail();
+  console.log("🎆 HAPPY NEW YEAR EMAIL SENT!");
+  await sendEmail("Happy New Year My Love 🎆");
 });
 
 /* =========================
    EMAIL FUNCTION
 ========================= */
-async function sendScheduledEmail() {
+async function sendEmail(subject) {
   await transporter.sendMail({
     from: `"You ❤️" <${process.env.EMAIL}>`,
     to: "sandyberben15@gmail.com",
-    subject: "Happy New Year My Love 🎆",
+    subject,
     text: process.env.MESSAGE
   });
 
-  console.log("💌 Email sent successfully!");
+  console.log("💌 Email delivered!");
 }
 
 /* =========================
