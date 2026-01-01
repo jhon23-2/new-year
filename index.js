@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const nodemailer = require("nodemailer");
+const CryptoJs = require("crypto-js")
 require("dotenv").config();
 
 app.use(express.json());
@@ -9,13 +10,18 @@ app.use(cors());
 
 const PORT = process.env.SERVER_PORT || 3000;
 
+const bytesEmail = CryptoJs.AES.decrypt(process.env.ENCRYPTED_USER, process.env.ENCRYPTION_PASSPHRASE);
+const decryptedEmail = bytesEmail.toString(CryptoJs.enc.Utf8)
+
+const bytesKey = CryptoJs.AES.decrypt(process.env.ENCRYPTED_KEY_USER_GMAIL, process.env.ENCRYPTION_KEY);
+const decryptedKey = bytesKey.toString(CryptoJs.enc.Utf8)
 
 // transporter nodemailer configuration
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.USER || "random@gmail.com",
-    pass: process.env.KEY_USER_GMAIL || ";("
+    user: decryptedEmail || "random@gmail.com",
+    pass: decryptedKey || ";("
   }
 });
 
@@ -31,7 +37,7 @@ app.post("/send-email", (req, res) => {
     const { email, message, subject } = req.body
 
     transporter.sendMail({
-      from: process.env.USER || "random@gmail.com",
+      from: decryptedEmail || "random@gmail.com",
       to: email || "random@gmail.com",
       subject: subject || "Jhonattan Message",
       text: message || "Hello Ramdon Message :)"
@@ -73,6 +79,9 @@ setTimeout(async () => {
 app.get("/", (req, res) => {
   res.send("Server Application running succesfully !!!")
 })
+
+
+
 
 app.listen(PORT, () => {
   console.log("Server running on port:", PORT);
