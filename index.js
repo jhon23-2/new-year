@@ -1,69 +1,79 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-require("dotenv").config();
-
 const nodemailer = require("nodemailer");
-const cron = require("node-cron");
+require("dotenv").config();
 
 app.use(express.json());
 app.use(cors());
 
 const PORT = process.env.SERVER_PORT || 3000;
 
-/* =========================
-   EMAIL TRANSPORTER
-========================= */
+
+// transporter nodemailer configuration
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "jhoalmanza52@gmail.com",
-    pass: "hioq ygle yeeu kvja"
+    user: process.env.USER || "random@gmail.com",
+    pass: process.env.KEY_USER_GMAIL || ";("
   }
 });
 
-/* =========================
-   BASIC ROUTE
-========================= */
+// endpoint send email 
+app.post("/send-email", (req, res) => {
+
+  if (req.body === null) {
+    res.status(400).json({ message: "You Must send a Body! Try again " })
+    return
+  }
+
+  try {
+    const { email, message, subject } = req.body
+
+    transporter.sendMail({
+      from: process.env.USER || "random@gmail.com",
+      to: email || "random@gmail.com",
+      subject: subject || "Jhonattan Message",
+      text: message || "Hello Ramdon Message :)"
+    })
+
+    res.status(200).json({ message: `Mail sent succesfully to ${email}` })
+
+  } catch (error) {
+    res.status(500).json({ message: "Ufs! Somrthing was wrong " })
+  }
+
+})
+
+setTimeout(async () => {
+
+  try {
+    console.log("Sending information...")
+    const response = await fetch("http://localhost:3000/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: "Hello my love this message is for you im sending this message from myself",
+        subject: "Message",
+        email: "sandyberben15@gmail.com"
+      }
+      )
+    })
+
+    const { message } = await response.json()
+    console.log(message)
+
+  } catch (error) {
+    console.log("Error setTimeOut " + error)
+  }
+
+}, 5000)
+
+
 app.get("/", (req, res) => {
-  res.send("Happy New Year service is running 🎆");
-});
+  res.send("Server Application running succesfully !!!")
+})
 
-/* =========================
-   🧪 TEST EMAIL — 10:50 PM COLOMBIA
-   10:50 PM COL = 03:50 UTC
-========================= */
-cron.schedule("59 3 * * *", async () => {
-  console.log("🧪 TEST EMAIL SENT (10:59 PM COL)");
-  await sendEmail("🧪 Test before New Year 💌");
-});
-
-/* =========================
-   🎆 REAL NEW YEAR EMAIL
-   12:00 AM COL = 05:00 UTC
-========================= */
-cron.schedule("0 5 1 1 *", async () => {
-  console.log("🎆 HAPPY NEW YEAR EMAIL SENT!");
-  await sendEmail("Happy New Year My Love 🎆");
-});
-
-/* =========================
-   EMAIL FUNCTION
-========================= */
-async function sendEmail(subject) {
-  await transporter.sendMail({
-    from: `"You ❤️" <jhoalmanza52@gmail.com>`,
-    to: "sandyberben15@gmail.com",
-    subject,
-    text: "Happy new year my love , te amo mi vida gracias por pasar un nuevo anio conmigo de nuevo no sabes lo feliz que me siento contigo espero seguir sumando anios hasta que llegue el anio de casarnos te amo mi reina sin duda alguna lo mejor que me pudo pasar fue conocerte mi reina te amo mi cielo lindo , te amo cielo por un 2026 lleno de bendiciones se que este anio todo saldra bien mi reina te amo mucho quedate conmigo y vivamos nuestra vida juntos para siempre mi reina aun no estamos en el altar pero hasta que la muerte nos separe te amo mi reina open: https://famous-blancmange-687b18.netlify.app/"
-  });
-
-  console.log("💌 Email delivered!");
-}
-
-/* =========================
-   START SERVER
-========================= */
 app.listen(PORT, () => {
   console.log("Server running on port:", PORT);
 });
