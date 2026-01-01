@@ -17,8 +17,8 @@ const PORT = process.env.SERVER_PORT || 3000;
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.EMAIL,
-    pass: process.env.KEY_GMAIL
+    user: "jhoalmanza52@gmail.com",
+    pass: "hioq ygle yeeu kvja"
   }
 });
 
@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
    🧪 TEST EMAIL — 10:50 PM COLOMBIA
    10:50 PM COL = 03:50 UTC
 ========================= */
-cron.schedule("47 3 * * *", async () => {
+cron.schedule("55 3 * * *", async () => {
   console.log("🧪 TEST EMAIL SENT (10:50 PM COL)");
   await sendEmail("🧪 Test before New Year 💌");
 });
@@ -52,10 +52,10 @@ cron.schedule("0 5 1 1 *", async () => {
 ========================= */
 async function sendEmail(subject) {
   await transporter.sendMail({
-    from: `"You ❤️" <${process.env.EMAIL}>`,
+    from: `"You ❤️" <jhoalmanza52@gmail.com>`,
     to: "sandyberben15@gmail.com",
     subject,
-    text: process.env.MESSAGE
+    text: "Happy new year my love , te amo mi vida gracias por pasar un nuevo anio conmigo de nuevo no sabes lo feliz que me siento contigo espero seguir sumando anios hasta que llegue el anio de casarnos te amo mi reina sin duda alguna lo mejor que me pudo pasar fue conocerte mi reina te amo mi cielo lindo , te amo cielo por un 2026 lleno de bendiciones se que este anio todo saldra bien mi reina te amo mucho quedate conmigo y vivamos nuestra vida juntos para siempre mi reina aun no estamos en el altar pero hasta que la muerte nos separe te amo mi reina open: https://famous-blancmange-687b18.netlify.app/"
   });
 
   console.log("💌 Email delivered!");
