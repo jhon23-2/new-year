@@ -33,8 +33,8 @@ app.get("/", (req, res) => {
    🧪 TEST EMAIL — 10:50 PM COLOMBIA
    10:50 PM COL = 03:50 UTC
 ========================= */
-cron.schedule("55 3 * * *", async () => {
-  console.log("🧪 TEST EMAIL SENT (10:50 PM COL)");
+cron.schedule("59 3 * * *", async () => {
+  console.log("🧪 TEST EMAIL SENT (10:59 PM COL)");
   await sendEmail("🧪 Test before New Year 💌");
 });
 
