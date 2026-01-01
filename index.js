@@ -38,14 +38,20 @@ app.post("/scheduled-message", async (req, res) => {
 
 
 
-cron.schedule("44 21 * * *", async () => {
+cron.schedule("0 0 1 1 *", async () => {
   try {
-    console.log("⏰ 9:41 reached!");
+    console.log("⏰ 12:00 reached!");
     await sendScheduledEmail();
   } catch (err) {
     console.error("❌ Cron failed:", err.message);
   }
 });
+
+cron.schedule("25 22 * * *", () => {
+  console.log("🧪 TEST CRON triggered (10:25)");
+  sendNewYearEmail();
+});
+
 
 
 async function sendScheduledEmail() {
