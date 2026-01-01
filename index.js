@@ -1,72 +1,82 @@
-const express = require("express")
-const app = express()
-const cors = require("cors")
-require("dotenv").config()
+const express = require("express");
+const app = express();
+const cors = require("cors");
+require("dotenv").config();
 
-const nodemailer = require("nodemailer"); // mail library 
+const nodemailer = require("nodemailer");
 const cron = require("node-cron");
 
-app.use(express.json())
-app.use(cors())
-const PORT = process.env.SERVER_PORT || 5000
+app.use(express.json());
+app.use(cors());
 
+const PORT = process.env.SERVER_PORT || 3000;
 
-let scheduledData = null
+/* =========================
+   EMAIL TRANSPORTER
+========================= */
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.EMAIL,
     pass: process.env.KEY_GMAIL
   }
-})
-
-
-app.get("/", (req, res) => {
-  res.send("Happy new year service !!!")
-})
-
-
-app.post("/scheduled-message", async (req, res) => {
-  scheduledData = req.body;
-
-  await sendScheduledEmail();
-
-  res.status(200).json({
-    message: "Message sent successfully!"
-  });
 });
 
+/* =========================
+   BASIC ROUTE
+========================= */
+app.get("/", (req, res) => {
+  res.send("Happy New Year service is running 🎆");
+});
 
-
-cron.schedule("0 5 1 1 *", async () => {
+/* =========================
+   MANUAL SEND (OPTIONAL)
+========================= */
+app.post("/scheduled-message", async (req, res) => {
   try {
-    console.log("⏰ 12:00 reached!");
     await sendScheduledEmail();
+    res.status(200).json({ message: "Message sent successfully!" });
   } catch (err) {
-    console.error("❌ Cron failed:", err.message);
+    console.error(err);
+    res.status(500).json({ error: "Failed to send email" });
   }
 });
 
-cron.schedule("35 3 * * *", () => {
-  console.log("🧪 TEST CRON triggered (10:25)");
-  sendNewYearEmail();
+/* =========================
+   🧪 TEST CRON (EVERY MINUTE)
+   REMOVE AFTER CONFIRMATION
+========================= */
+cron.schedule("* * * * *", async () => {
+  console.log("🧪 TEST CRON running...");
+  await sendScheduledEmail();
 });
 
+/* =========================
+   🎆 NEW YEAR CRON
+   12:00 AM COLOMBIA = 05:00 UTC
+========================= */
+cron.schedule("0 5 1 1 *", async () => {
+  console.log("🎆 HAPPY NEW YEAR!");
+  await sendScheduledEmail();
+});
 
-
+/* =========================
+   EMAIL FUNCTION
+========================= */
 async function sendScheduledEmail() {
-
   await transporter.sendMail({
     from: `"You ❤️" <${process.env.EMAIL}>`,
     to: "sandyberben15@gmail.com",
     subject: "Happy New Year My Love 🎆",
-    text: process.env.MESSAGE || scheduledData.message
+    text: process.env.MESSAGE
   });
 
-  console.log("💌 Email sent!");
+  console.log("💌 Email sent successfully!");
 }
 
-
+/* =========================
+   START SERVER
+========================= */
 app.listen(PORT, () => {
-  console.log("Sever running on: " + PORT)
-})
+  console.log("Server running on port:", PORT);
+});
